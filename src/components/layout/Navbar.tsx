@@ -6,7 +6,6 @@ const navLinks = [
   { name: "Jewelry", href: "/collections?category=jewelry" },
   { name: "Watches", href: "/collections?category=watches" },
   { name: "About", href: "/about" },
-  { name: "Contact", href: "/contact" },
 ];
 
 export function Navbar({ className }: { className?: string }) {
@@ -16,7 +15,7 @@ export function Navbar({ className }: { className?: string }) {
         <Link
           key={link.name}
           href={link.href}
-          className="text-sm tracking-widest uppercase hover:text-gold-500 transition-colors duration-300"
+          className="text-[9px] tracking-[0.2em] uppercase text-stone-900 hover:text-stone-400 transition-colors duration-300 relative after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-[1px] after:bg-stone-300 hover:after:w-full after:transition-all after:duration-500"
         >
           {link.name}
         </Link>

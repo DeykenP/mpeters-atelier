@@ -65,12 +65,12 @@ export default async function ProductDetailPage({
               {/* Inquiry CTA */}
               <div className="flex flex-col gap-4 mb-16">
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="w-full block">
-                  <Button size="lg" className="w-full bg-[#25D366] hover:bg-[#1DA851] text-white flex items-center justify-center gap-3 border-none">
-                    <MessageCircle className="w-5 h-5" />
-                    Inquire via WhatsApp
+                  <Button size="lg" variant="primary" className="w-full flex items-center justify-center gap-3">
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Inquire via WhatsApp</span>
                   </Button>
                 </a>
-                <p className="text-xs text-center text-stone-400 uppercase tracking-widest mt-2">
+                <p className="text-[10px] text-center text-stone-400 uppercase tracking-widest mt-2">
                   Speak directly with an atelier specialist
                 </p>
               </div>
@@ -78,14 +78,14 @@ export default async function ProductDetailPage({
               {/* Specifications Accordion/List */}
               {product.specifications && product.specifications.length > 0 && (
                 <div className="border-t border-stone-200 pt-8">
-                  <h3 className="text-sm uppercase tracking-widest font-semibold text-stone-900 mb-6">
+                  <h3 className="text-[10px] uppercase tracking-[0.2em] font-medium text-stone-900 mb-6">
                     Specifications
                   </h3>
                   <div className="flex flex-col gap-4">
                     {product.specifications.map((spec, idx) => (
-                      <div key={idx} className="flex justify-between text-sm border-b border-stone-100 pb-4">
-                        <span className="text-stone-500">{spec.name}</span>
-                        <span className="text-stone-950 text-right max-w-[60%] font-medium">{spec.value}</span>
+                      <div key={idx} className="flex justify-between text-xs border-b border-stone-100 pb-3">
+                        <span className="text-stone-400 uppercase tracking-widest text-[9px]">{spec.name}</span>
+                        <span className="text-stone-900 text-right max-w-[60%] font-serif tracking-wide">{spec.value}</span>
                       </div>
                     ))}
                   </div>

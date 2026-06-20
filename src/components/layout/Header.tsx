@@ -5,28 +5,34 @@ import { SITE_CONFIG } from "@/lib/constants";
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 transition-all duration-300">
-      <div className="container mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full bg-white transition-all duration-500">
+      <div className="container mx-auto px-4 md:px-8 h-24 flex items-center justify-between">
         
-        {/* Mobile Menu (Left on mobile, hidden on desktop) */}
-        <div className="flex-1 md:hidden">
+        {/* Mobile Menu (Left on mobile) */}
+        <div className="flex-1 flex md:hidden justify-start">
           <MobileMenu />
         </div>
 
-        {/* Logo (Centered on mobile, left on desktop) */}
-        <div className="flex-1 md:flex-none flex justify-center md:justify-start">
-          <Link href="/" className="text-2xl font-serif tracking-widest text-foreground hover:opacity-80 transition-opacity">
+        {/* Desktop Nav Left */}
+        <div className="hidden md:flex flex-1 justify-start">
+          <Navbar />
+        </div>
+
+        {/* Logo (Centered) */}
+        <div className="flex-1 flex justify-center">
+          <Link href="/" className="text-xl md:text-2xl font-serif tracking-[0.25em] text-stone-950 hover:opacity-70 transition-opacity uppercase text-center">
             {SITE_CONFIG.name}
           </Link>
         </div>
 
-        {/* Desktop Navigation (Hidden on mobile, right on desktop) */}
-        <div className="hidden md:flex flex-1 justify-end">
-          <Navbar />
+        {/* Desktop Utilities Right */}
+        <div className="hidden md:flex flex-1 justify-end items-center gap-8 text-stone-900">
+           <span className="text-[9px] tracking-[0.2em] uppercase cursor-pointer hover:text-stone-500 transition-colors">Search</span>
+           <span className="text-[9px] tracking-[0.2em] uppercase cursor-pointer hover:text-stone-500 transition-colors">Account</span>
         </div>
 
-        {/* Spacer for mobile to balance the flex layout */}
-        <div className="flex-1 md:hidden" />
+        {/* Mobile Spacer */}
+        <div className="flex-1 flex md:hidden justify-end" />
       </div>
     </header>
   );
