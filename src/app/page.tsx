@@ -10,6 +10,7 @@ export default function Home() {
         subheadline="Discover exceptional watches and jewelry curated for those who appreciate excellence."
         primaryCta={{ label: "Explore Collections", href: "/collections" }}
         secondaryCta={{ label: "Contact via WhatsApp", href: `https://wa.me/${SITE_CONFIG.whatsappNumber.replace(/[^0-9]/g, '')}` }}
+        backgroundImage="/images/hero/home-hero.png"
       />
       <BrandStory />
     </>

@@ -20,7 +20,7 @@ export default async function CollectionsPage() {
       <section className="relative w-full h-[40vh] min-h-[350px] flex items-center justify-center overflow-hidden bg-stone-950">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/hero/collections-hero.jpg"
+            src="/images/hero/collections-hero.png"
             alt="M. Peters Atelier Collections"
             fill
             className="object-cover opacity-60"
