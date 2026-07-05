@@ -31,7 +31,9 @@ export function Footer() {
               Discover unparalleled craftsmanship and timeless elegance. Subscribe to our exclusive newsletter to receive early access to new collections and bespoke services.
             </p>
             <form className="flex mt-2 max-w-md" onSubmit={(e) => e.preventDefault()}>
+              <label htmlFor="newsletter-email" className="sr-only">Email address</label>
               <input
+                id="newsletter-email"
                 type="email"
                 placeholder="Enter your email"
                 className="bg-transparent border-b border-stone-600 px-0 py-2 w-full text-white placeholder-stone-500 focus:outline-none focus:border-gold-500 transition-colors"

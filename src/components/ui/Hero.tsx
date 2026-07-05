@@ -11,7 +11,7 @@ interface HeroProps {
   subheadline: string;
   primaryCta: { label: string; href: string };
   secondaryCta?: { label: string; href: string };
-  backgroundImage: string;
+  backgroundImage?: string;
   className?: string;
 }
 
@@ -25,23 +25,28 @@ export function Hero({
 }: HeroProps) {
   return (
     <section className={cn("relative w-full h-[95vh] min-h-[600px] flex items-center justify-center overflow-hidden bg-stone-950", className)}>
-      {/* Background Image with Parallax subtle scale */}
-      <motion.div 
-        className="absolute inset-0 z-0"
-        initial={{ scale: 1.05 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 2, ease: "easeOut" }}
-      >
-        <Image 
-          src={backgroundImage}
-          alt="M. Peters Atelier"
-          fill
-          priority
-          className="object-cover object-center opacity-80"
-        />
-        {/* Elegant Dark Overlay */}
-        <div className="absolute inset-0 bg-stone-950/30 bg-gradient-to-t from-stone-950/60 via-transparent to-stone-950/30" />
-      </motion.div>
+      {/* Background: photograph when available, refined gradient otherwise */}
+      {backgroundImage ? (
+        <motion.div
+          className="absolute inset-0 z-0"
+          initial={{ scale: 1.05 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 2, ease: "easeOut" }}
+        >
+          <Image
+            src={backgroundImage}
+            alt="M. Peters Atelier"
+            fill
+            priority
+            className="object-cover object-center opacity-80"
+          />
+          <div className="absolute inset-0 bg-stone-950/30 bg-gradient-to-t from-stone-950/60 via-transparent to-stone-950/30" />
+        </motion.div>
+      ) : (
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(212,175,55,0.08),_transparent_65%)]" />
+        </div>
+      )}
 
       <div className="container relative z-10 mx-auto px-4 text-center flex flex-col items-center pt-16">
         <motion.span 
