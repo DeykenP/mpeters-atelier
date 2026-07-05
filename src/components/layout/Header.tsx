@@ -25,11 +25,8 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Desktop Utilities Right */}
-        <div className="hidden md:flex flex-1 justify-end items-center gap-8 text-stone-900">
-           <span className="text-[9px] tracking-[0.2em] uppercase cursor-pointer hover:text-stone-500 transition-colors">Search</span>
-           <span className="text-[9px] tracking-[0.2em] uppercase cursor-pointer hover:text-stone-500 transition-colors">Account</span>
-        </div>
+        {/* Right spacer (keeps logo centered) */}
+        <div className="hidden md:flex flex-1 justify-end" />
 
         {/* Mobile Spacer */}
         <div className="flex-1 flex md:hidden justify-end" />

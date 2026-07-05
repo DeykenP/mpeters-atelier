@@ -21,7 +21,7 @@ export function MobileMenu({ className }: { className?: string }) {
     <div className={cn("md:hidden", className)}>
       <button
         onClick={() => setIsOpen(true)}
-        className="p-2 -mr-2 text-foreground hover:text-gold-500 transition-colors"
+        className="p-2 -mr-2 text-foreground hover:text-gold-700 transition-colors"
         aria-label="Open menu"
       >
         <Menu className="w-6 h-6" />
@@ -41,13 +41,13 @@ export function MobileMenu({ className }: { className?: string }) {
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              transition={{ duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
               className="fixed top-0 right-0 h-full w-full max-w-sm bg-background border-l border-stone-200 dark:border-stone-800 z-50 p-6 flex flex-col shadow-2xl"
             >
               <div className="flex justify-end mb-8">
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2 -mr-2 text-foreground hover:text-gold-500 transition-colors"
+                  className="p-2 -mr-2 text-foreground hover:text-gold-700 transition-colors"
                   aria-label="Close menu"
                 >
                   <X className="w-6 h-6" />
@@ -63,7 +63,7 @@ export function MobileMenu({ className }: { className?: string }) {
                   >
                     <Link
                       href={link.href}
-                      className="text-2xl font-serif tracking-wide hover:text-gold-500 transition-colors duration-300 block"
+                      className="text-2xl font-serif tracking-wide hover:text-gold-700 transition-colors duration-300 block"
                       onClick={() => setIsOpen(false)}
                     >
                       {link.name}
