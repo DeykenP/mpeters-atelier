@@ -4,7 +4,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
   return (
     <div className="flex flex-col gap-6">
       {images.map((img, idx) => (
-        <div key={idx} className="relative aspect-square md:aspect-[4/5] w-full bg-stone-50 overflow-hidden">
+        <div key={idx} className="relative aspect-square md:aspect-[4/5] w-full bg-stone-100 overflow-hidden">
           <Image
             src={img}
             alt={`${name} - View ${idx + 1}`}

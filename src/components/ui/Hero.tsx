@@ -2,45 +2,61 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Button } from "./Button";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 interface HeroProps {
   headline: string;
-  subheadline: string;
-  primaryCta: { label: string; href: string };
-  secondaryCta?: { label: string; href: string };
+  subheadline?: string;
+  cta: { label: string; href: string };
   backgroundImage?: string;
+  /** Optional looping ambient video; backgroundImage becomes its poster. */
+  backgroundVideo?: string;
   className?: string;
 }
+
+const ease = [0.25, 0.4, 0.25, 1] as const;
 
 export function Hero({
   headline,
   subheadline,
-  primaryCta,
-  secondaryCta,
+  cta,
   backgroundImage,
+  backgroundVideo,
   className,
 }: HeroProps) {
   return (
-    <section className={cn("relative w-full h-[95vh] min-h-[600px] flex items-center justify-center overflow-hidden bg-stone-950", className)}>
-      {/* Background: photograph when available, refined gradient otherwise */}
-      {backgroundImage ? (
+    <section
+      className={cn(
+        "relative w-full h-[92vh] min-h-[600px] flex items-end overflow-hidden bg-stone-950",
+        className
+      )}
+    >
+      {/* Background: video > image > branded gradient */}
+      {backgroundVideo ? (
+        <video
+          className="absolute inset-0 z-0 w-full h-full object-cover opacity-90"
+          src={backgroundVideo}
+          poster={backgroundImage}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      ) : backgroundImage ? (
         <motion.div
           className="absolute inset-0 z-0"
-          initial={{ scale: 1.05 }}
+          initial={{ scale: 1.04 }}
           animate={{ scale: 1 }}
-          transition={{ duration: 2, ease: "easeOut" }}
+          transition={{ duration: 2.4, ease: "easeOut" }}
         >
           <Image
             src={backgroundImage}
-            alt="M. Peters Atelier"
+            alt=""
             fill
             priority
-            className="object-cover object-center opacity-80"
+            className="object-cover object-center opacity-90"
           />
-          <div className="absolute inset-0 bg-stone-950/30 bg-gradient-to-t from-stone-950/60 via-transparent to-stone-950/30" />
         </motion.div>
       ) : (
         <div className="absolute inset-0 z-0 bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950">
@@ -48,53 +64,42 @@ export function Hero({
         </div>
       )}
 
-      <div className="container relative z-10 mx-auto px-4 text-center flex flex-col items-center pt-16">
-        <motion.span 
-          className="text-[9px] md:text-[10px] tracking-[0.4em] text-white/80 uppercase mb-6"
-          initial={{ opacity: 0, y: 20 }}
+      {/* Single legibility gradient anchored to the text zone */}
+      <div className="absolute inset-x-0 bottom-0 h-2/3 z-0 bg-gradient-to-t from-stone-950/80 via-stone-950/30 to-transparent" />
+
+      {/* Content: bottom-left, editorial */}
+      <div className="container relative z-10 mx-auto px-6 md:px-12 pb-24 md:pb-32">
+        <motion.h1
+          className="font-serif text-4xl md:text-5xl lg:text-6xl text-ivory tracking-wide max-w-2xl leading-[1.15] mb-6"
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.1, ease: [0.25, 0.4, 0.25, 1] }}
-        >
-          The New Standard
-        </motion.span>
-        
-        <motion.h1 
-          className="font-serif text-5xl md:text-7xl lg:text-8xl text-white tracking-wide max-w-5xl mb-8 leading-[1.1] drop-shadow-sm"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
+          transition={{ duration: 1.1, delay: 0.2, ease }}
         >
           {headline}
         </motion.h1>
-        
-        <motion.p 
-          className="text-xs md:text-sm text-white/90 max-w-xl mb-12 font-light leading-relaxed tracking-[0.05em] drop-shadow-sm"
-          initial={{ opacity: 0, y: 20 }}
+
+        {subheadline && (
+          <motion.p
+            className="text-sm text-ivory/70 max-w-md mb-10 font-light leading-relaxed tracking-wide"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, delay: 0.4, ease }}
+          >
+            {subheadline}
+          </motion.p>
+        )}
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5, ease: [0.25, 0.4, 0.25, 1] }}
+          transition={{ duration: 1.1, delay: 0.6, ease }}
         >
-          {subheadline}
-        </motion.p>
-        
-        <motion.div 
-          className="flex flex-col sm:flex-row gap-6 sm:gap-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
-        >
-          <Link href={primaryCta.href}>
-            <Button size="lg" className="w-full sm:w-auto bg-white text-stone-950 hover:bg-stone-200 border-none">
-              {primaryCta.label}
-            </Button>
+          <Link
+            href={cta.href}
+            className="inline-block text-[11px] uppercase tracking-[0.3em] text-ivory pb-1.5 border-b border-ivory/40 hover:border-ivory transition-colors duration-500"
+          >
+            {cta.label}
           </Link>
-          
-          {secondaryCta && (
-            <Link href={secondaryCta.href}>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto border-white/40 text-white hover:bg-white hover:text-stone-950 hover:border-white">
-                {secondaryCta.label}
-              </Button>
-            </Link>
-          )}
         </motion.div>
       </div>
     </section>
