@@ -20,20 +20,20 @@ export function CollectionFilterClient({ initialProducts, categories }: Props) {
   return (
     <div className="w-full">
       {/* Category Filters */}
-      <div className="flex flex-wrap justify-center gap-8 md:gap-12 mb-16 border-b border-stone-200 pb-4">
+      <div className="flex flex-wrap justify-center gap-10 md:gap-14 mb-20 border-b border-stone-200 pb-5">
         <button 
           onClick={() => setActiveCategory("all")}
-          className={`text-xs md:text-sm tracking-[0.2em] uppercase transition-colors duration-300 relative ${
-            activeCategory === "all" 
-              ? "text-stone-900" 
-              : "text-stone-400 hover:text-stone-600"
+          className={`text-[11px] tracking-[0.25em] uppercase transition-colors duration-500 relative ${
+            activeCategory === "all"
+              ? "text-stone-950"
+              : "text-stone-400 hover:text-stone-700"
           }`}
         >
           All Pieces
           {activeCategory === "all" && (
-            <motion.div 
+            <motion.div
               layoutId="underline"
-              className="absolute left-0 right-0 -bottom-[17px] h-[2px] bg-stone-900" 
+              className="absolute left-0 right-0 -bottom-[21px] h-[1px] bg-stone-950"
             />
           )}
         </button>
@@ -41,17 +41,17 @@ export function CollectionFilterClient({ initialProducts, categories }: Props) {
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.slug)}
-            className={`text-xs md:text-sm tracking-[0.2em] uppercase transition-colors duration-300 relative ${
-              activeCategory === cat.slug 
-                ? "text-stone-900" 
-                : "text-stone-400 hover:text-stone-600"
+            className={`text-[11px] tracking-[0.25em] uppercase transition-colors duration-500 relative ${
+              activeCategory === cat.slug
+                ? "text-stone-950"
+                : "text-stone-400 hover:text-stone-700"
             }`}
           >
             {cat.name}
             {activeCategory === cat.slug && (
-              <motion.div 
+              <motion.div
                 layoutId="underline"
-                className="absolute left-0 right-0 -bottom-[17px] h-[2px] bg-stone-900" 
+                className="absolute left-0 right-0 -bottom-[21px] h-[1px] bg-stone-950"
               />
             )}
           </button>
@@ -62,9 +62,9 @@ export function CollectionFilterClient({ initialProducts, categories }: Props) {
       <div className="min-h-[50vh]">
         <AnimatePresence mode="popLayout">
           {filteredProducts.length > 0 ? (
-            <motion.div 
+            <motion.div
               layout
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-20"
             >
               {filteredProducts.map(product => (
                 <motion.div
@@ -87,13 +87,13 @@ export function CollectionFilterClient({ initialProducts, categories }: Props) {
               exit={{ opacity: 0 }}
               className="flex flex-col items-center justify-center h-64 text-center"
             >
-              <h3 className="text-xl font-serif text-stone-900 mb-2">No Pieces Found</h3>
-              <p className="text-stone-500 font-light">We couldn't find any items in this category at the moment.</p>
-              <button 
+              <h3 className="text-xl font-serif text-stone-950 mb-3">No Pieces Found</h3>
+              <p className="text-stone-500 font-light text-sm">This category is currently empty.</p>
+              <button
                 onClick={() => setActiveCategory("all")}
-                className="mt-6 text-xs tracking-widest uppercase text-gold-600 hover:text-gold-700 transition-colors"
+                className="mt-8 text-[11px] tracking-[0.25em] uppercase text-stone-900 pb-1.5 border-b border-stone-300 hover:border-stone-900 transition-colors duration-500"
               >
-                View All Collections
+                View All Pieces
               </button>
             </motion.div>
           )}
