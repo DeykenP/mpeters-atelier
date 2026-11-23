@@ -1,28 +1,43 @@
-import Image from "next/image";
 import Link from "next/link";
-import { Product } from "@/types";
-import { cn } from "@/lib/utils";
+import { ViewTransition } from "react";
+import type { ProductSummary } from "@/types";
+import { ProductImage } from "./ProductImage";
+import { cn, priceLabel } from "@/lib/utils";
 
-export function ProductCard({ product, className }: { product: Product; className?: string }) {
+export function ProductCard({
+  product,
+  priority,
+  className,
+}: {
+  product: ProductSummary;
+  priority?: boolean;
+  className?: string;
+}) {
   return (
-    <Link href={`/products/${product.slug}`} className={cn("group flex flex-col", className)}>
-      <div className="relative aspect-[4/5] bg-stone-100 overflow-hidden mb-6">
-        <Image
-          src={product.featuredImage}
-          alt={product.name}
-          fill
-          className="object-cover object-center transition-transform duration-[1.8s] ease-out group-hover:scale-[1.04]"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-        />
+    <Link
+      href={`/products/${product.slug}`}
+      className={cn("group block", className)}
+    >
+      <div className="relative aspect-[4/5] overflow-hidden bg-tile">
+        {/* Same name as the photo on the product page: it travels there */}
+        <ViewTransition name={`product-${product.slug}`} share="morph" default="none">
+          <ProductImage
+            src={product.image}
+            alt={product.name}
+            tone={product.tone}
+            priority={priority}
+            sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+            className="transition-transform duration-[1600ms] ease-film group-hover:scale-[1.045]"
+          />
+        </ViewTransition>
       </div>
-
-      <div className="flex flex-col flex-1 items-center text-center px-2">
-        <h3 className="font-serif text-base md:text-lg text-stone-950 leading-snug mb-2 group-hover:opacity-60 transition-opacity duration-500">
+      <div className="mt-5 px-1 text-center">
+        <h3 className="font-serif text-[15px] md:text-base leading-snug text-stone-950 transition-opacity duration-500 group-hover:opacity-60">
           {product.name}
         </h3>
-        <span className="text-[11px] text-stone-500 mt-auto tracking-[0.15em] font-light">
-          ${product.price.toLocaleString()}
-        </span>
+        <p className="mt-2 text-[11px] tracking-[0.14em] text-stone-500">
+          {priceLabel(product.price, product.priceMax)}
+        </p>
       </div>
     </Link>
   );

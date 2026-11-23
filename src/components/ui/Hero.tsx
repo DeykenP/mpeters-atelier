@@ -1,106 +1,56 @@
-"use client";
-
-import { motion } from "framer-motion";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
 import Image from "next/image";
+import Link from "next/link";
 
 interface HeroProps {
+  /** Two frames cross-fade like a slow film; a single frame simply holds. */
+  frames: string[];
+  eyebrow?: string;
   headline: string;
   subheadline?: string;
   cta: { label: string; href: string };
-  backgroundImage?: string;
-  /** Optional looping ambient video; backgroundImage becomes its poster. */
-  backgroundVideo?: string;
-  className?: string;
 }
 
-const ease = [0.25, 0.4, 0.25, 1] as const;
-
-export function Hero({
-  headline,
-  subheadline,
-  cta,
-  backgroundImage,
-  backgroundVideo,
-  className,
-}: HeroProps) {
+export function Hero({ frames, eyebrow, headline, subheadline, cta }: HeroProps) {
   return (
-    <section
-      className={cn(
-        "relative w-full h-[92vh] min-h-[600px] flex items-end overflow-hidden bg-stone-950",
-        className
-      )}
-    >
-      {/* Background: video > image > branded gradient */}
-      {backgroundVideo ? (
-        <video
-          className="absolute inset-0 z-0 w-full h-full object-cover opacity-90"
-          src={backgroundVideo}
-          poster={backgroundImage}
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
-      ) : backgroundImage ? (
-        <motion.div
-          className="absolute inset-0 z-0"
-          initial={{ scale: 1.04 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 2.4, ease: "easeOut" }}
-        >
-          <Image
-            src={backgroundImage}
-            alt=""
-            fill
-            priority
-            className="object-cover object-center opacity-90"
-          />
-        </motion.div>
-      ) : (
-        <div className="absolute inset-0 z-0 bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(212,175,55,0.08),_transparent_65%)]" />
-        </div>
-      )}
+    <section className="relative -mt-16 md:-mt-20 h-[100svh] min-h-[560px] w-full overflow-hidden bg-stone-950 text-ivory">
+      <div className="absolute inset-0">
+        {frames.map((src, i) => (
+          <div key={src} className={frames.length > 1 ? "hero-frame absolute inset-0" : "absolute inset-0"}>
+            <Image
+              src={src}
+              alt=""
+              fill
+              sizes="100vw"
+              loading={i === 0 ? "eager" : undefined}
+              fetchPriority={i === 0 ? "high" : undefined}
+              className="object-cover"
+            />
+          </div>
+        ))}
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/10 to-stone-950/35" />
 
-      {/* Single legibility gradient anchored to the text zone */}
-      <div className="absolute inset-x-0 bottom-0 h-2/3 z-0 bg-gradient-to-t from-stone-950/80 via-stone-950/30 to-transparent" />
-
-      {/* Content: bottom-left, editorial */}
-      <div className="container relative z-10 mx-auto px-6 md:px-12 pb-24 md:pb-32">
-        <motion.h1
-          className="font-serif text-4xl md:text-5xl lg:text-6xl text-ivory tracking-wide max-w-2xl leading-[1.15] mb-6"
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.1, delay: 0.2, ease }}
-        >
-          {headline}
-        </motion.h1>
-
-        {subheadline && (
-          <motion.p
-            className="text-sm text-ivory/70 max-w-md mb-10 font-light leading-relaxed tracking-wide"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.1, delay: 0.4, ease }}
-          >
-            {subheadline}
-          </motion.p>
+      <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-end px-6 pb-24 md:px-12 md:pb-28">
+        {eyebrow && (
+          <p className="fade-in text-[9px] uppercase tracking-[0.5em] text-ivory/70">{eyebrow}</p>
         )}
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.1, delay: 0.6, ease }}
+        <h1 className="fade-in mt-6 max-w-3xl font-serif text-[2.6rem] leading-[1.06] md:text-6xl lg:text-7xl">
+          {headline}
+        </h1>
+        {subheadline && (
+          <p className="fade-in-late mt-7 max-w-md text-sm font-light leading-relaxed text-ivory/75">{subheadline}</p>
+        )}
+        <Link
+          href={cta.href}
+          className="fade-in-late mt-10 self-start border-b border-ivory/40 pb-1.5 text-[10px] uppercase tracking-[0.32em] transition-colors duration-500 hover:border-ivory"
         >
-          <Link
-            href={cta.href}
-            className="inline-block text-[11px] uppercase tracking-[0.3em] text-ivory pb-1.5 border-b border-ivory/40 hover:border-ivory transition-colors duration-500"
-          >
-            {cta.label}
-          </Link>
-        </motion.div>
+          {cta.label}
+        </Link>
+      </div>
+
+      {/* scroll cue */}
+      <div className="absolute bottom-8 left-1/2 z-10 hidden h-12 w-px -translate-x-1/2 overflow-hidden bg-ivory/20 md:block">
+        <div className="h-1/2 w-full animate-[scroll-cue_2.4s_var(--ease-film)_infinite] bg-ivory/80" />
       </div>
     </section>
   );
