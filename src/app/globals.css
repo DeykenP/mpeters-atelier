@@ -3,11 +3,14 @@
 :root {
   --background: #fbfaf8; /* warm ivory */
   --foreground: #1c1917; /* stone-900 */
+  --tile: #f2f0ec; /* product frame: studio-white photos melt into it */
+  --ease-film: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-tile: var(--tile);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
   --color-ivory: #fbfaf8;
@@ -15,6 +18,11 @@
   --color-gold-600: #c5a017;
   --color-gold-700: #b8860b;
   --color-gold-800: #8a6d1f;
+  --ease-film: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -22,7 +30,182 @@ body {
   color: var(--foreground);
 }
 
+/* After a navigation the new page is scrolled into view: keep its top clear
+   of the fixed header. */
+main > * {
+  scroll-margin-top: 4rem;
+}
+@media (min-width: 768px) {
+  main > * {
+    scroll-margin-top: 5rem;
+  }
+}
+
 ::selection {
   background-color: #1c1917;
   color: #fbfaf8;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Cinematic route transitions (React <ViewTransition> + View Transitions API) */
+/* -------------------------------------------------------------------------- */
+
+/* The header is the fixed reference while pages change beneath it. */
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+/* Pages cross-dissolve like a film cut: the old frame softens and fades,
+   the new one resolves out of a slight blur. */
+::view-transition-old(root),
+::view-transition-old(.dissolve) {
+  animation: 360ms cubic-bezier(0.4, 0, 1, 1) both vt-out;
+}
+::view-transition-new(root),
+::view-transition-new(.dissolve) {
+  animation: 820ms var(--ease-film) 140ms both vt-in;
+}
+::view-transition-group(.dissolve) {
+  animation-duration: 820ms;
+  animation-timing-function: var(--ease-film);
+}
+
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    filter: blur(6px);
+  }
+}
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+    transform: scale(1.015);
+  }
+}
+
+/* A product photo travels from the grid into its page. */
+::view-transition-group(.morph) {
+  animation-duration: 700ms;
+  animation-timing-function: var(--ease-film);
+}
+::view-transition-image-pair(.morph) {
+  animation-name: vt-via-blur;
+  animation-duration: 700ms;
+}
+@keyframes vt-via-blur {
+  35% {
+    filter: blur(3px);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Motion                                                                     */
+/* -------------------------------------------------------------------------- */
+
+/* Hero: slow cross-fading frames with a gentle push-in, no JavaScript. */
+.hero-frame {
+  opacity: 0;
+  animation: hero-cycle 18s var(--ease-film) infinite both;
+}
+.hero-frame:nth-child(2) {
+  animation-delay: 9s;
+}
+@keyframes hero-cycle {
+  0% {
+    opacity: 0;
+    transform: scale(1.09);
+  }
+  9% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+@keyframes scroll-cue {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(200%);
+  }
+}
+
+/* Elements resolve into view as they scroll in (where supported). */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
+  }
+}
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* First paint: a single soft fade for above-the-fold content. */
+.fade-in {
+  animation: vt-in 1100ms var(--ease-film) both;
+}
+.fade-in-late {
+  animation: vt-in 1100ms var(--ease-film) 350ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*),
+  ::view-transition-image-pair(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+  .hero-frame {
+    animation: none;
+    opacity: 1;
+  }
+  .hero-frame:nth-child(2) {
+    opacity: 0;
+  }
+  .reveal,
+  .fade-in,
+  .fade-in-late {
+    animation: none;
+  }
+}
+
+/* Thin, quiet scrollbars for horizontal rails */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

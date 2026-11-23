@@ -1,81 +1,85 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { categories } from "@/data/categories";
 
-const navLinks = [
-  { name: "Collections", href: "/collections" },
-  { name: "Jewelry", href: "/collections?category=jewelry" },
-  { name: "Watches", href: "/collections?category=watches" },
+const ease = [0.22, 1, 0.36, 1] as const;
+
+const LINKS = [
+  { name: "The Collection", href: "/collections" },
+  ...categories.map((c) => ({ name: c.name, href: `/collections/${c.slug}` })),
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ];
 
-export function MobileMenu({ className }: { className?: string }) {
-  const [isOpen, setIsOpen] = useState(false);
+export function MobileMenu() {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   return (
-    <div className={cn("md:hidden", className)}>
+    <>
       <button
-        onClick={() => setIsOpen(true)}
-        className="p-2 -ml-2 text-stone-950 hover:opacity-60 transition-opacity duration-500"
+        onClick={() => setOpen(true)}
+        className="-ml-2 flex h-10 w-10 flex-col items-start justify-center gap-[5px] pl-2"
         aria-label="Open menu"
       >
-        <Menu className="w-5 h-5" strokeWidth={1.5} />
+        <span className="block h-px w-6 bg-current" />
+        <span className="block h-px w-4 bg-current" />
       </button>
 
       <AnimatePresence>
-        {isOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              className="fixed inset-0 bg-stone-950/40 backdrop-blur-sm z-40"
-              onClick={() => setIsOpen(false)}
-            />
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
-              className="fixed top-0 left-0 h-full w-full max-w-sm bg-background z-50 p-8 flex flex-col"
-            >
-              <div className="flex justify-start mb-16">
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-2 -ml-2 text-stone-950 hover:opacity-60 transition-opacity duration-500"
-                  aria-label="Close menu"
+        {open && (
+          <motion.div
+            className="fixed inset-0 z-[60] flex flex-col bg-ivory text-stone-950"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease }}
+          >
+            <div className="flex h-16 items-center justify-between px-5">
+              <span className="text-[9px] tracking-[0.5em] uppercase text-stone-500">Menu</span>
+              <button
+                onClick={() => setOpen(false)}
+                className="relative h-10 w-10"
+                aria-label="Close menu"
+              >
+                <span className="absolute left-2 top-1/2 h-px w-6 rotate-45 bg-current" />
+                <span className="absolute left-2 top-1/2 h-px w-6 -rotate-45 bg-current" />
+              </button>
+            </div>
+            <nav className="flex flex-1 flex-col justify-center gap-5 px-8 pb-16">
+              {LINKS.map((link, i) => (
+                <motion.div
+                  key={link.href}
+                  initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  transition={{ delay: 0.12 + i * 0.05, duration: 0.7, ease }}
                 >
-                  <X className="w-5 h-5" strokeWidth={1.5} />
-                </button>
-              </div>
-              <nav className="flex flex-col gap-8">
-                {navLinks.map((link, i) => (
-                  <motion.div
-                    key={link.name}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.08 + 0.15, duration: 0.5 }}
+                  <Link
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    className={
+                      i === 0 || i > categories.length
+                        ? "block font-serif text-3xl tracking-wide"
+                        : "block pl-1 text-[11px] uppercase tracking-[0.3em] text-stone-500"
+                    }
                   >
-                    <Link
-                      href={link.href}
-                      className="text-2xl font-serif tracking-wide text-stone-950 hover:opacity-60 transition-opacity duration-500 block"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {link.name}
-                    </Link>
-                  </motion.div>
-                ))}
-              </nav>
-            </motion.div>
-          </>
+                    {link.name}
+                  </Link>
+                </motion.div>
+              ))}
+            </nav>
+          </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }

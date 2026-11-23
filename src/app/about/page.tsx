@@ -1,122 +1,101 @@
 import Image from "next/image";
-import { Button } from "@/components/ui/Button";
-import { SITE_CONFIG } from "@/lib/constants";
+import Link from "next/link";
 import type { Metadata } from "next";
+import { SITE_CONFIG } from "@/lib/constants";
+import { whatsappLink } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "About | M. Peters Atelier",
-  description: "Learn about M. Peters Atelier. A carefully selected collection of luxury watches and moissanite jewelry for individuals who appreciate craftsmanship.",
+  title: "About",
+  description:
+    "M. Peters Atelier makes fine jewelry to order: moissanite, sterling silver and gold finishes, confirmed with you personally.",
 };
 
-const pillars = [
+const steps = [
   {
-    title: "Authentic Timepieces",
-    body: "Every watch is meticulously inspected for absolute authenticity and mechanical integrity.",
+    title: "Choose",
+    body: "Browse the collection and pick the finish, the width and the length that suit you.",
   },
   {
-    title: "Premium Moissanite",
-    body: "Only D-color, VVS clarity stones — brilliance that rivals natural diamonds.",
+    title: "Write to us",
+    body: "Send the code or a screenshot by WhatsApp. We confirm the details and the final price.",
   },
   {
-    title: "Personal Attention",
-    body: "Direct, discreet and expert guidance through our dedicated concierge service.",
+    title: "Made for you",
+    body: "Your piece is made to order, exactly as you chose it.",
   },
 ] as const;
 
+const materials = [
+  { title: "Moissanite", body: "D colour, VVS clarity stones with a fire that rivals diamond." },
+  { title: "Sterling silver", body: "S925 silver, finished in white, yellow or rose gold." },
+  { title: "Stainless steel", body: "Steel chains in 14K and 18K gold tones, made for every day." },
+] as const;
+
 export default function AboutPage() {
-  const whatsappMessage = "Hello, I would like to speak with an atelier specialist.";
-  const whatsappUrl = `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${encodeURIComponent(
-    whatsappMessage
-  )}`;
-
   return (
-    <div className="bg-background min-h-screen">
-
-      {/* 1. Editorial Opening */}
-      <section className="py-28 md:py-40">
-        <div className="container mx-auto px-6 md:px-12 text-center">
-          <span className="text-[10px] tracking-[0.4em] text-stone-500 uppercase mb-10 block">
-            The Atelier
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-stone-950 mb-10 max-w-3xl mx-auto leading-[1.15]">
-            Curated luxury.<br />Timeless style.
-          </h1>
-          <p className="text-stone-600 max-w-xl mx-auto text-sm md:text-base font-light leading-loose tracking-wide">
-            M. Peters Atelier offers a carefully selected collection of luxury
-            watches and moissanite jewelry for individuals who appreciate
-            craftsmanship, quality and timeless design.
-          </p>
-        </div>
-      </section>
-
-      {/* 2. Philosophy — editorial split */}
-      <section className="pb-28 md:pb-40 container mx-auto px-6 md:px-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-14 lg:gap-24 items-center">
-          <div className="relative aspect-[3/4] bg-stone-100 overflow-hidden">
-            <Image
-              src="/images/products/watches/citizen-tsuyosa-automatic-tiffany-1.jpeg"
-              alt="A timepiece from the M. Peters Atelier collection"
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
-            />
-          </div>
-          <div className="flex flex-col justify-center">
-            <span className="text-[10px] tracking-[0.4em] uppercase text-stone-500 mb-8">Our Philosophy</span>
-            <h2 className="text-3xl md:text-4xl font-serif text-stone-950 mb-10 leading-snug">
-              An unwavering commitment to excellence.
-            </h2>
-            <div className="space-y-6 text-stone-600 font-light text-sm leading-loose">
-              <p>
-                True luxury lies in the details. We prioritize quality over
-                quantity, ensuring every piece in our collection meets rigorous
-                standards for craftsmanship and aesthetic perfection.
-              </p>
-              <p>
-                Our selection is deliberately narrow. We do not seek to offer
-                everything — only the exceptional. Whether the mechanical
-                precision of a fine timepiece or the fire of premium
-                moissanite, we provide access to the timeless.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. Pillars */}
-      <section className="py-28 md:py-40 bg-stone-950">
-        <div className="container mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-12">
-            {pillars.map((pillar) => (
-              <div key={pillar.title} className="flex flex-col items-center text-center">
-                <h3 className="text-[11px] tracking-[0.3em] uppercase mb-6 text-ivory">
-                  {pillar.title}
-                </h3>
-                <div className="w-8 h-[1px] bg-gold-700 mb-6" />
-                <p className="text-stone-400 text-sm font-light leading-loose max-w-xs">
-                  {pillar.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Call To Action */}
-      <section className="py-32 md:py-44 container mx-auto px-6 text-center">
-        <h2 className="text-3xl md:text-4xl font-serif text-stone-950 mb-8">
-          Find your signature piece.
-        </h2>
-        <p className="text-stone-500 max-w-md mx-auto mb-14 text-sm font-light tracking-wide leading-relaxed">
-          Our specialists are available to guide you with absolute discretion.
+    <div className="pb-28 md:pb-40">
+      <section className="mx-auto max-w-3xl px-6 pt-20 text-center md:pt-32">
+        <p className="text-[9px] uppercase tracking-[0.5em] text-stone-400">The Atelier</p>
+        <h1 className="mt-8 font-serif text-4xl leading-[1.1] text-stone-950 md:text-6xl">
+          Made to order,
+          <br />
+          made to last.
+        </h1>
+        <p className="mx-auto mt-10 max-w-xl text-sm font-light leading-loose text-stone-600 md:text-base">
+          M. Peters Atelier makes fine jewelry to order — chains, bracelets, rings, earrings and
+          pendants in moissanite, sterling silver and gold finishes — alongside a small selection
+          of automatic watches.
         </p>
-        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-          <Button variant="primary" size="lg">
-            Contact a Specialist
-          </Button>
-        </a>
       </section>
 
+      <section className="mx-auto mt-24 w-full max-w-[1600px] px-6 md:mt-36 md:px-12">
+        <div className="reveal relative aspect-[16/9] overflow-hidden bg-stone-900 md:aspect-[21/9]">
+          <Image src="/images/hero/collections-hero.png" alt="" fill sizes="100vw" className="object-cover" />
+        </div>
+      </section>
+
+      <section className="mx-auto mt-24 grid w-full max-w-[1600px] gap-14 px-6 md:mt-36 md:grid-cols-3 md:gap-12 md:px-12">
+        {steps.map((s, i) => (
+          <div key={s.title} className="reveal">
+            <p className="text-[10px] tracking-[0.3em] text-stone-400">{String(i + 1).padStart(2, "0")}</p>
+            <h2 className="mt-5 font-serif text-2xl text-stone-950">{s.title}</h2>
+            <p className="mt-4 max-w-xs text-sm font-light leading-relaxed text-stone-600">{s.body}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="mx-auto mt-28 w-full max-w-[1600px] border-t border-stone-200 px-6 pt-20 md:mt-40 md:px-12 md:pt-28">
+        <h2 className="text-center font-serif text-3xl text-stone-950 md:text-4xl">The materials</h2>
+        <div className="mt-16 grid gap-14 text-center md:grid-cols-3 md:gap-12">
+          {materials.map((m) => (
+            <div key={m.title} className="reveal flex flex-col items-center">
+              <h3 className="text-[10px] uppercase tracking-[0.3em] text-stone-950">{m.title}</h3>
+              <div className="my-6 h-px w-8 bg-gold-700" />
+              <p className="max-w-xs text-sm font-light leading-relaxed text-stone-600">{m.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto mt-28 flex max-w-xl flex-col items-center px-6 text-center md:mt-40">
+        <h2 className="font-serif text-3xl text-stone-950 md:text-4xl">Find your piece.</h2>
+        <div className="mt-12 flex flex-col items-center gap-8 sm:flex-row">
+          <Link
+            href="/collections"
+            className="flex h-14 items-center bg-stone-950 px-12 text-[10px] uppercase tracking-[0.32em] text-ivory transition-colors duration-500 hover:bg-stone-800"
+          >
+            The collection
+          </Link>
+          <a
+            href={whatsappLink(SITE_CONFIG.whatsappNumber, "Hello M. Peters Atelier, I would like some help choosing a piece.")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border-b border-stone-300 pb-1 text-[10px] uppercase tracking-[0.32em] text-stone-900 transition-colors duration-500 hover:border-stone-900"
+          >
+            WhatsApp
+          </a>
+        </div>
+      </section>
     </div>
   );
 }
