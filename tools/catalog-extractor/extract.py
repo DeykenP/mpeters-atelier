@@ -37,7 +37,10 @@ import hashlib
 import io
 import json
 import re
+import shutil
+import subprocess
 import sys
+import time
 from collections import Counter, OrderedDict, defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -327,8 +330,8 @@ class Group:
 class Extractor:
     def __init__(self, out: Path):
         self.out = out
-        self.img_dir = out / "images"
-        self.img_dir.mkdir(parents=True, exist_ok=True)
+        self.png_dir = out / "_png"
+        self.png_dir.mkdir(parents=True, exist_ok=True)
         self.groups: list[Group] = []
         self.report: list[str] = []
         self.image_files: dict[str, str] = {}  # image key -> file name
@@ -663,16 +666,121 @@ class Extractor:
         img = trim(img)
         if img.width < 40 or img.height < 40:
             return None
-        img.thumbnail((1100, 1100), Image.LANCZOS)
+        img.thumbnail((MAX_SOURCE, MAX_SOURCE), Image.LANCZOS)
         digest = hashlib.sha1(img.tobytes()).hexdigest()[:12]
         if digest in self.image_hashes:
             self.image_files[key] = self.image_hashes[digest]
             return self.image_hashes[digest]
-        fname = f"{digest}.webp"
-        img.save(self.img_dir / fname, "WEBP", quality=84, method=6)
+        # lossless source; the published WebP files are made from it at the end
+        fname = f"{digest}.png"
+        img.save(self.png_dir / fname, "PNG")
         self.image_hashes[digest] = fname
         self.image_files[key] = fname
         return fname
+
+
+MAX_SOURCE = 1600  # cap for very large renders; catalog photos are ~450 px
+LARGE, SMALL = 1200, 600  # published sizes: product page, grids and thumbnails
+UPSCALE_BELOW = 1000  # photos already this large are only resized
+AI_INPUT = 600  # largest side handed to Real-ESRGAN (4x -> 2400 px)
+
+
+def same_photo(a: Image.Image, b: Image.Image) -> bool:
+    """Coarse comparison that tolerates rendering differences between computers."""
+    ta = a.convert("L").resize((24, 24), Image.BILINEAR).tobytes()
+    tb = b.convert("L").resize((24, 24), Image.BILINEAR).tobytes()
+    return abs(a.width / a.height - b.width / b.height) < 0.03 and sum(abs(x - y) for x, y in zip(ta, tb)) / 576 < 14
+
+
+def upscale(png_dir: Path, items: dict[str, str], binary: Path, models: Path | None, work: Path) -> dict[str, Path]:
+    """
+    Enlarge photos 4x with Real-ESRGAN (realesrgan-ncnn-vulkan, on the GPU).
+
+    `items` maps each source PNG to its published name. Finished photos are
+    kept as work/done/<name>.webp (LARGE px) and found again by name, not by
+    file content, so a run stopped on one computer can be finished on
+    another: copy the work folder into the other computer's --out folder.
+    """
+    src_dir, raw_dir, done_dir = work / "in", work / "out", work / "done"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    done_dir.mkdir(parents=True, exist_ok=True)
+
+    def collect() -> None:
+        """Keep a compact copy of each 4x result (the raw PNGs are ~2.5 MB each)."""
+        for raw in raw_dir.glob("*.png"):
+            try:
+                with Image.open(raw) as im:
+                    ai = im.convert("RGB")
+            except Exception:  # written halfway when the run stopped
+                raw.unlink()
+                continue
+            ai.thumbnail((LARGE, LARGE), Image.LANCZOS)
+            ai.save(done_dir / f"{raw.stem}.webp", "WEBP", quality=95, method=4)
+            raw.unlink()
+
+    collect()
+    stems = {src: Path(name).stem for src, name in items.items()}
+    pending = []
+    for src, stem in stems.items():
+        done = done_dir / f"{stem}.webp"
+        if done.exists():
+            with Image.open(done) as a, Image.open(png_dir / src) as b:
+                if same_photo(a, b):
+                    continue
+            done.unlink()  # the catalog changed: this name now shows another photo
+        pending.append(src)
+
+    if pending:
+        shutil.rmtree(src_dir, ignore_errors=True)
+        src_dir.mkdir(parents=True)
+        for src in pending:
+            # 4x of AI_INPUT already exceeds the published size: larger
+            # sources are reduced first, which bounds the time per photo
+            with Image.open(png_dir / src) as im:
+                photo = im.convert("RGB")
+            photo.thumbnail((AI_INPUT, AI_INPUT), Image.LANCZOS)
+            photo.save(src_dir / f"{stems[src]}.png", "PNG")
+        cmd = [str(binary), "-i", str(src_dir), "-o", str(raw_dir), "-n", "realesrgan-x4plus", "-s", "4", "-f", "png"]
+        if models:
+            cmd += ["-m", str(models)]
+        total, already = len(pending), len(stems) - len(pending)
+        print(f"· Real-ESRGAN: {total} photos to enlarge ({already} already done)", file=sys.stderr)
+        started = time.time()
+        with open(work / "upscale.log", "w") as log:
+            proc = subprocess.Popen(cmd, stdout=log, stderr=log)
+            while proc.poll() is None:
+                time.sleep(3)
+                n = sum(1 for _ in raw_dir.glob("*.png"))
+                eta = (time.time() - started) / n * (total - n) if n else 0
+                print(f"\r  {n}/{total} · about {eta / 60:.0f} min left   ", end="", file=sys.stderr, flush=True)
+        print(file=sys.stderr)
+        collect()
+        if proc.returncode:
+            raise SystemExit(f"Real-ESRGAN stopped with code {proc.returncode}; see {work / 'upscale.log'}")
+    return {src: done_dir / f"{stem}.webp" for src, stem in stems.items() if (done_dir / f"{stem}.webp").exists()}
+
+
+def finish_images(png_dir: Path, img_dir: Path, names: dict[str, str], enlarged: dict[str, Path], blend: float) -> None:
+    """
+    Write each photo as <name> (LARGE px) and sm/<name> (SMALL px). An
+    enlarged photo is blended with the plain enlargement of the original:
+    full AI output invents texture in small pavé stones ("cracked ice"), the
+    blend keeps most of the sharpness without it.
+    """
+    (img_dir / "sm").mkdir(parents=True, exist_ok=True)
+    for src, name in names.items():
+        with Image.open(png_dir / src) as im:
+            photo = im.convert("RGB")
+        if src in enlarged:
+            with Image.open(enlarged[src]) as im:
+                ai = im.convert("RGB")
+            photo = Image.blend(photo.resize(ai.size, Image.BICUBIC), ai, blend)
+        large = photo.copy()
+        large.thumbnail((LARGE, LARGE), Image.LANCZOS)
+        large.save(img_dir / name, "WEBP", quality=82, method=6)
+        small = photo.copy()
+        small.thumbnail((SMALL, SMALL), Image.LANCZOS)
+        small.save(img_dir / "sm" / name, "WEBP", quality=80, method=6)
 
 
 def trim(img: Image.Image, threshold: int = 244, pad_ratio: float = 0.03) -> Image.Image:
@@ -1180,6 +1288,12 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("pdfs", nargs="+", type=Path)
     ap.add_argument("--out", required=True, type=Path)
+    ap.add_argument(
+        "--upscaler", type=Path,
+        help="path to realesrgan-ncnn-vulkan: enlarges the ~450 px catalog photos for the product page",
+    )
+    ap.add_argument("--upscale-models", type=Path, help="Real-ESRGAN models folder (default: next to the binary)")
+    ap.add_argument("--blend", type=float, default=0.6, help="share of the AI enlargement in the final photo (0-1)")
     args = ap.parse_args()
 
     ex = Extractor(args.out)
@@ -1189,20 +1303,28 @@ def main() -> int:
 
     products = build_products(ex.groups, ex.report)
 
-    # Name each photo after the first product that shows it, drop unused ones
+    # Name each photo after the first product that shows it
     img_dir = args.out / "images"
+    shutil.rmtree(img_dir, ignore_errors=True)
+    img_dir.mkdir(parents=True)
     renamed: dict[str, str] = {}
     for p in products:
         for i, f in enumerate(p["images"], 1):
             if f not in renamed:
                 renamed[f] = f"{p['slug']}-{i}.webp"
-    for f in img_dir.glob("*.webp"):
-        if f.name in renamed:
-            f.rename(img_dir / ("_" + renamed[f.name]))
-        else:
-            f.unlink()
-    for f in img_dir.glob("_*.webp"):
-        f.rename(img_dir / f.name[1:])
+
+    enlarged: dict[str, Path] = {}
+    if args.upscaler:
+        small_ones = {}
+        for f, name in renamed.items():
+            with Image.open(ex.png_dir / f) as im:
+                if max(im.size) < UPSCALE_BELOW:
+                    small_ones[f] = name
+        models = args.upscale_models or args.upscaler.parent / "models"
+        enlarged = upscale(ex.png_dir, small_ones, args.upscaler, models, args.out / "_upscale")
+    finish_images(ex.png_dir, img_dir, renamed, enlarged, args.blend)
+    (ex.png_dir / "names.json").write_text(json.dumps(renamed, indent=1))
+
     for p in products:
         p["images"] = [renamed[f] for f in p["images"]]
         for v in p["variants"]:

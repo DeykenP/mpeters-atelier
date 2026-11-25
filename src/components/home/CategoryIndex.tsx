@@ -86,7 +86,7 @@ export function CategoryIndex({ categories }: { categories: Entry[] }) {
         {categories.map((c) => (
           <Link key={c.slug} href={`/collections/${c.slug}`} className="reveal block">
             <div className="relative aspect-[4/5] overflow-hidden bg-tile">
-              <ProductImage src={c.image} alt={c.name} tone={c.tone} sizes="50vw" />
+              <ProductImage src={c.image} alt={c.name} tone={c.tone} size="sm" sizes="50vw" />
             </div>
             <p className="mt-4 text-center font-serif text-lg text-stone-950">{c.name}</p>
           </Link>

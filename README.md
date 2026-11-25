@@ -18,7 +18,7 @@ Abre <http://localhost:3000>.
 
 | Origen | Archivo | Qué contiene |
 | --- | --- | --- |
-| Catálogo por encargo | `src/data/catalog.json` + `public/catalog/` | Generado desde los PDF con [`tools/catalog-extractor`](tools/catalog-extractor/README.md): ~530 diseños con opciones (color, ancho, largo, talla, quilates), código y precio por variante. |
+| Catálogo por encargo | `src/data/catalog.json` + `public/catalog/` | Generado desde los PDF con [`tools/catalog-extractor`](tools/catalog-extractor/README.md): ~530 diseños con opciones (color, ancho, largo, talla, quilates), código y precio por variante. Las fotos se agrandan con Real-ESRGAN y se publican en dos tamaños: `public/catalog/` (1200 px, ficha) y `public/catalog/sm/` (600 px, grillas). |
 | Piezas en existencia | `src/data/products.ts` | Productos cargados a mano con fotos propias. |
 
 `src/lib/catalog.ts` une ambos y es lo que usan las páginas.

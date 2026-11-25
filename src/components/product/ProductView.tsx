@@ -129,7 +129,7 @@ export function ProductView({
                   src === image ? "opacity-100 ring-1 ring-stone-950" : "opacity-55 hover:opacity-100"
                 )}
               >
-                <ProductImage src={src} alt="" tone={tone(src)} sizes="96px" />
+                <ProductImage src={src} alt="" tone={tone(src)} size="sm" sizes="96px" />
               </button>
             ))}
           </div>
