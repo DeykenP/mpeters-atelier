@@ -7,8 +7,15 @@ interface Props {
   alt: string;
   tone: ImageTone;
   sizes: string;
+  /** "sm" (600 px) for grids and thumbnails, "lg" (1200 px) for the product page */
+  size?: "sm" | "lg";
   priority?: boolean;
   className?: string;
+}
+
+/** Catalog photos ship in two sizes: /catalog/<file> and /catalog/sm/<file>. */
+function sized(src: string, size: "sm" | "lg"): string {
+  return size === "sm" && src.startsWith("/catalog/") ? src.replace("/catalog/", "/catalog/sm/") : src;
 }
 
 /**
@@ -16,7 +23,7 @@ interface Props {
  * blended into the warm frame, and lifestyle shots on dark, which fill it.
  * Catalog files are already sized WebP, so they are served as they are.
  */
-export function ProductImage({ src, alt, tone, sizes, priority, className }: Props) {
+export function ProductImage({ src, alt, tone, sizes, size = "lg", priority, className }: Props) {
   if (!src) {
     return (
       <div className="absolute inset-0 flex items-center justify-center">
@@ -26,7 +33,7 @@ export function ProductImage({ src, alt, tone, sizes, priority, className }: Pro
   }
   return (
     <Image
-      src={src}
+      src={sized(src, size)}
       alt={alt}
       fill
       sizes={sizes}

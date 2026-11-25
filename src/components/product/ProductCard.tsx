@@ -25,6 +25,7 @@ export function ProductCard({
             src={product.image}
             alt={product.name}
             tone={product.tone}
+            size="sm"
             priority={priority}
             sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
             className="transition-transform duration-[1600ms] ease-film group-hover:scale-[1.045]"
